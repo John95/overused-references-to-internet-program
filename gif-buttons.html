@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>You make buttons that make GIF's. Have Fun.</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<style type="text/css">
+		  button,
+		  div,
+		  form,
+		  input {
+		    margin: 10px;
+		  }
+		</style>
+	</head>
+	<body>
+
+		<div class="container">
+		  <h1>GIF Search</h1>
+
+		  <!-- topics will get dumped here -->
+		  <div id="topics-view"></div>
+
+		  <form id="gif-form">
+		    <label for="gif-input">Search GIF</label>
+		    <input type="text" id="gif-input"><br>
+
+		    <!-- Button triggers new gif to be added -->
+		    <input id="add-gif" type="submit" value="Add GIF">
+		  </form>
+
+		  <div id="gifs-appear-here"></div>
+
+		  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		  <script type="text/javascript">
+		  	$(document).ready(function() {
+	  		    function displayTopicStuff() {
+	  			  // console.log("hey");
+	  		      // IMPORTANT: 'this' calls the particular button you clicked on.
+	  		      var topic = $(this).attr("data-topic");
+	  		      console.log("Topic: "+ topic);
+	  		      var api_key = "7EizMgxfMgNqm0l4QyReytBmvqL2bJTI";
+	  		      var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+	  		        topic + "&api_key=" + api_key + "&limit=10";
+	  		      console.log(queryURL);
+
+	  		      $.ajax({
+	  		          url: queryURL,
+	  		          method: "GET"
+	  		        })
+	  		        .done(function(response) {
+	  		          var results = response.data;
+
+	  		          for (var i = 0; i < results.length; i++) {
+	  		            var gifDiv = $("<div class='item'>");
+	  		            var rating = results[i].rating;
+	  		            var p = $("<p>").text("Rating: " + rating);
+	  		            var topicImage = $("<img>");
+	  		            topicImage.attr("src", results[i].images.fixed_height_still.url);
+	  		            topicImage.attr("data-still", results[i].images.fixed_height_still.url);
+	  		            topicImage.attr("data-animate", results[i].images.fixed_height.url);
+	  		            topicImage.attr("data-state", "still");
+	  		            topicImage.attr("class", "picture");
+
+	  		            gifDiv.prepend(p);
+	  		            gifDiv.prepend(topicImage);
+
+	  		            $("#gifs-appear-here").prepend(gifDiv);
+	  		          }
+	  		        });
+	  		    };
+
+	  		    $(document).on("click", ".picture", function() {
+	  		        var state = $(this).attr("data-state");
+	  		        var animate = $(this).attr("data-animate");
+	  		        var still = $(this).attr("data-still");
+
+	  		        if (state === "still") {
+	  		          $(this).attr("src", animate);
+	  		          $(this).attr("data-state", "animate");
+	  		        } else if (state === "animate") {
+	  		          $(this).attr("src", still);
+	  		          $(this).attr("data-state", "still");
+	  		        }
+	  		    });
+
+			    // Initial array of topics
+			    var topics = ["cats", "kittens", "doge", "Toaster Cats"];
+
+			    // Function for displaying gif data
+			    function renderButtons() {
+
+			      $("#topics-view").empty();
+
+			      for (var i = 0; i < topics.length; i++) {
+
+			        var a = $("<button>");
+			        a.addClass("gif");
+			        a.attr("data-topic", topics[i]);
+			        a.text(topics[i]);
+			        $("#topics-view").append(a);
+			        // console.log(a.attr("data-topic"));
+			      }
+			    }
+
+			    // function searchGifs(topic) {
+			    // 	var api_key = "7EizMgxfMgNqm0l4QyReytBmvqL2bJTI";
+			    // 	var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + topic + "&api_key=" + api_key;
+			    // }
+
+			    $("#add-gif").on("click", function(event) {
+			      event.preventDefault();
+
+			      var gif = $("#gif-input").val().trim();
+			      topics.push(gif);
+
+			      renderButtons();
+			    });
+
+
+
+
+
+			    $(document).on("click", ".gif", displayTopicStuff);
+
+			    // Calling the renderButtons function at least once to display the initial list of topics
+			    renderButtons();
+
+
+			})
+		  </script>
+		</div>
+
+	</body>
+</html>
